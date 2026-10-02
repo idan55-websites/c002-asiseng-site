@@ -14,6 +14,34 @@ const revealTargets = document.querySelectorAll("[data-reveal]");
 const heroElement = document.getElementById("hero");
 const accessibilityStorageKey = "asiseng-accessibility-settings";
 const cookieConsentStorageKey = "asiseng-cookie-consent-v2";
+// Keep controls working even when the browser blocks persistent site storage.
+const sessionSettings = new Map();
+const settingsStorage = {
+  getItem(key) {
+    if (sessionSettings.has(key)) return sessionSettings.get(key);
+    try {
+      return window.localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  },
+  setItem(key, value) {
+    sessionSettings.set(key, value);
+    try {
+      window.localStorage.setItem(key, value);
+    } catch {
+      // The choice remains effective for the current page.
+    }
+  },
+  removeItem(key) {
+    sessionSettings.delete(key);
+    try {
+      window.localStorage.removeItem(key);
+    } catch {
+      // No persistent storage is available to clear.
+    }
+  },
+};
 const mapboxToken =
   "pk.eyJ1IjoiaWRhbmg1IiwiYSI6ImNtcDAybXY4aDExZ3YycHNmeGN3cTkxeW8ifQ.vqvma0E55jOZdxpoQHoNBQ";
 
@@ -53,7 +81,7 @@ function shouldReduceMotion() {
 }
 
 function hasCookieConsent() {
-  return localStorage.getItem(cookieConsentStorageKey) === "accepted";
+  return settingsStorage.getItem(cookieConsentStorageKey) === "accepted";
 }
 
 function applyAccessibilityState() {
@@ -63,7 +91,7 @@ function applyAccessibilityState() {
   document.body.classList.toggle(bodyClassMap.underlineLinks, state.underlineLinks);
   document.body.classList.toggle(bodyClassMap.stopMotion, state.stopMotion);
   syncMotionPreference();
-  localStorage.setItem(accessibilityStorageKey, JSON.stringify(state));
+  settingsStorage.setItem(accessibilityStorageKey, JSON.stringify(state));
 }
 
 function syncMotionPreference() {
@@ -71,13 +99,13 @@ function syncMotionPreference() {
 }
 
 function loadAccessibilityState() {
-  const savedState = localStorage.getItem(accessibilityStorageKey);
+  const savedState = settingsStorage.getItem(accessibilityStorageKey);
   if (!savedState) return;
 
   try {
     Object.assign(state, JSON.parse(savedState));
   } catch {
-    localStorage.removeItem(accessibilityStorageKey);
+    settingsStorage.removeItem(accessibilityStorageKey);
   }
 }
 
@@ -189,7 +217,7 @@ async function initMapbox() {
 }
 
 function acceptCookies() {
-  localStorage.setItem(cookieConsentStorageKey, "accepted");
+  settingsStorage.setItem(cookieConsentStorageKey, "accepted");
   setCookieBannerState(false);
   syncMotionPreference();
   initRevealObserver();
@@ -197,7 +225,7 @@ function acceptCookies() {
 }
 
 function rejectOptionalCookies() {
-  localStorage.setItem(cookieConsentStorageKey, "essential");
+  settingsStorage.setItem(cookieConsentStorageKey, "essential");
   setCookieBannerState(false);
   if (mapInstance) {
     mapInstance.remove();
@@ -410,7 +438,7 @@ window.addEventListener("pageshow", () => {
 loadAccessibilityState();
 positionAccessibilityToggle();
 applyAccessibilityState();
-setCookieBannerState(!["accepted", "essential"].includes(localStorage.getItem(cookieConsentStorageKey)));
+setCookieBannerState(!["accepted", "essential"].includes(settingsStorage.getItem(cookieConsentStorageKey)));
 resetInitialScroll();
 initIntro();
 initHeroObserver();

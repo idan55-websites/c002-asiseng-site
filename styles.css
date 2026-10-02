@@ -1000,6 +1000,10 @@ button:focus-visible {
   min-height: 3rem;
 }
 
+.cookie-banner .button--ghost {
+  color: var(--text);
+}
+
 .cookie-settings-link {
   padding: 0;
   border: 0;
