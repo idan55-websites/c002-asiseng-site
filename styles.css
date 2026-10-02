@@ -1123,6 +1123,60 @@ button:focus-visible {
   }
 }
 
+/* Mobile effects are finite and use only opacity/transform for motion. */
+@media (max-width: 959px) and (prefers-reduced-motion: no-preference) {
+  [data-reveal] {
+    transform: translateY(1rem);
+    transition-duration: 0.42s;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: auto;
+  }
+
+  [data-reveal="delay-1"],
+  [data-reveal="delay-2"] {
+    transition-delay: 0s;
+  }
+
+  .service-card[data-reveal],
+  .timeline__item[data-reveal] {
+    transform: translateY(1rem) scale(0.98);
+  }
+
+  [data-reveal].is-visible {
+    transform: none;
+  }
+
+  .hero__card.is-visible .cinematic-card__line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-strong), transparent);
+    transform-origin: right center;
+    animation: mobile-accent-enter 0.6s ease-out 0.15s both;
+  }
+
+  .button,
+  .call-chip,
+  .nav-toggle {
+    transition: transform 0.14s ease-out;
+  }
+
+  .button:active,
+  .call-chip:active,
+  .nav-toggle:active {
+    transform: scale(0.97);
+  }
+
+  @keyframes mobile-accent-enter {
+    from {
+      opacity: 0;
+      transform: scaleX(0.15);
+    }
+    to {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+  }
+}
+
 @media (min-width: 720px) {
   .container {
     width: min(1180px, calc(100% - 2rem));
