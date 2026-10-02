@@ -15,7 +15,6 @@
       href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800&family=Manrope:wght@500;700;800&display=swap"
       rel="stylesheet"
     />
-    <link href="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <script>
       if ("scrollRestoration" in history) {
@@ -64,12 +63,17 @@
         <p class="cookie-banner__eyebrow">Cookies</p>
         <h2 id="cookie-banner-title">האתר משתמש בקובצי Cookies</h2>
         <p>
-          אנו משתמשים בקובצי Cookies לצורך תפעול תקין של האתר, שמירת העדפות
-          משתמש והצגת רכיבים חיצוניים כמו המפה. המשך השימוש מחייב אישור.
+          אנו שומרים בדפדפן את בחירת הפרטיות והעדפות הנגישות. באישורכם נטען
+          מפה חיצונית של Mapbox, שעשויה לקבל מידע כגון כתובת IP ולהשתמש בעוגיות.
+          האישור מפעיל גם גלילה חלקה ואנימציות, גם אם המכשיר מוגדר להפחתת תנועה.
+          אפשר לעצור אנימציות בתפריט הנגישות ולהמשיך ללא המפה.
         </p>
         <div class="cookie-banner__actions">
           <button class="button button--primary cookie-banner__button" id="cookie-accept" type="button">
-            מאשר/ת Cookies
+            אישור מפה ואפקטים
+          </button>
+          <button class="button button--ghost cookie-banner__button" id="cookie-reject" type="button">
+            המשך ללא שירותים חיצוניים
           </button>
           <a class="cookie-banner__link" href="privacy.html">למדיניות הפרטיות</a>
         </div>
@@ -101,6 +105,7 @@
         <button type="button" data-action="toggle-underline-links">הדגשת קישורים</button>
         <button type="button" data-action="toggle-stop-motion">עצירת אנימציות</button>
         <button type="button" data-action="reset-accessibility">איפוס</button>
+        <button type="button" data-cookie-settings>הגדרות פרטיות ועוגיות</button>
       </div>
       <a class="accessibility-panel__link" href="accessibility.html">להצהרת הנגישות המלאה</a>
     </aside>
@@ -132,7 +137,12 @@
           >
             <span class="nav-toggle__lines" aria-hidden="true"></span>
           </button>
-          <a class="call-chip" href="tel:0542563557">054-256-3557</a>
+          <a class="call-chip" href="tel:0542563557" aria-label="התקשרו לניסים עסיס: 054-256-3557">
+            <svg class="call-chip__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M7 3 4 4c-2 1 0 7 4 11s10 6 11 4l1-3-5-2-2 2c-2-1-4-3-5-5l2-2-3-6Z" />
+            </svg>
+            <span class="call-chip__number">054-256-3557</span>
+          </a>
         </div>
       </header>
 
@@ -278,7 +288,7 @@
               <div class="projects-map-shell">
                 <div class="projects-map" id="projects-map" aria-label="מפת פרויקטים"></div>
                 <div class="projects-map__placeholder" id="projects-map-placeholder">
-                  אשרו Cookies כדי לטעון את המפה
+                  אשרו שירותים חיצוניים בהגדרות הפרטיות כדי לטעון את המפה
                 </div>
               </div>
             </div>
@@ -342,6 +352,7 @@
             </p>
           </div>
           <nav class="footer-nav" aria-label="קישורי תחתית">
+            <button class="cookie-settings-link" type="button" data-cookie-settings>הגדרות פרטיות</button>
             <a href="accessibility.html">הצהרת נגישות</a>
             <a href="privacy.html">מדיניות פרטיות</a>
             <a href="tel:0542563557">טלפון</a>
@@ -359,7 +370,6 @@
       </footer>
     </div>
 
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js" defer></script>
     <script src="script.js" defer></script>
   </body>
 </html>

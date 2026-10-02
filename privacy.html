@@ -49,12 +49,17 @@
         <p class="cookie-banner__eyebrow">Cookies</p>
         <h2 id="cookie-banner-title">האתר משתמש בקובצי Cookies</h2>
         <p>
-          אנו משתמשים בקובצי Cookies לצורך תפעול תקין של האתר, שמירת העדפות
-          משתמש והצגת רכיבים חיצוניים. המשך השימוש מחייב אישור.
+          אנו שומרים בדפדפן את בחירת הפרטיות והעדפות הנגישות. באישורכם נטען
+          מפה חיצונית של Mapbox, שעשויה לקבל מידע כגון כתובת IP ולהשתמש בעוגיות.
+          האישור מפעיל גם גלילה חלקה ואנימציות, גם אם המכשיר מוגדר להפחתת תנועה.
+          אפשר לעצור אנימציות בתפריט הנגישות ולהמשיך ללא המפה.
         </p>
         <div class="cookie-banner__actions">
           <button class="button button--primary cookie-banner__button" id="cookie-accept" type="button">
-            מאשר/ת Cookies
+            אישור מפה ואפקטים
+          </button>
+          <button class="button button--ghost cookie-banner__button" id="cookie-reject" type="button">
+            המשך ללא שירותים חיצוניים
           </button>
           <a class="cookie-banner__link" href="privacy.html">למדיניות הפרטיות</a>
         </div>
@@ -86,6 +91,7 @@
         <button type="button" data-action="toggle-underline-links">הדגשת קישורים</button>
         <button type="button" data-action="toggle-stop-motion">עצירת אנימציות</button>
         <button type="button" data-action="reset-accessibility">איפוס</button>
+        <button type="button" data-cookie-settings>הגדרות פרטיות ועוגיות</button>
       </div>
     </aside>
 
@@ -147,9 +153,24 @@
         <section>
           <h2>Cookies וכלים טכנולוגיים</h2>
           <p>
-            האתר עשוי לעשות שימוש בקובצי Cookies ובטכנולוגיות דומות לצורכי
-            תפעול, אבטחה, מדידה ושיפור השירות. ניתן להגביל או לחסום Cookies דרך
-            הגדרות הדפדפן, אך ייתכן שחלק מהפונקציות לא יעבדו באופן מלא.
+            האתר שומר במכשירכם, באמצעות localStorage, את בחירת הפרטיות
+            (asiseng-cookie-consent-v2) ואת העדפות הנגישות (asiseng-accessibility-settings).
+            הנתונים נשמרים בדפדפן עד לשינוי הבחירה או למחיקת נתוני האתר, ואינם נשלחים
+            על ידי קוד האתר לשרת. אין באתר כלי פרסום או כלי ניתוח גלישה מטעמנו.
+          </p>
+          <p>
+            המפה, לרבות קובצי התוכנה שלה, נטענת רק לאחר אישורכם. השירות ניתן על ידי
+            Mapbox ועשוי לקבל כתובת IP, מידע על הדפדפן ובקשות מפה ולהשתמש בעוגיות
+            בהתאם ל<a href="https://www.mapbox.com/legal/privacy" target="_blank" rel="noopener noreferrer">מדיניות הפרטיות של Mapbox</a>.
+            האתר משתמש גם בגופנים של Google Fonts, הנטענים בעת פתיחת הדף ועשויים
+            להעביר ל-Google כתובת IP ומידע על בקשת הגופן.
+          </p>
+          <p>
+            ניתן להמשיך לגלוש ללא המפה ולשנות את הבחירה בכל עת באמצעות
+            ״הגדרות פרטיות ועוגיות״ בתפריט הנגישות. ביטול האישור מסיר את המפה
+            ומפסיק את פעילותה העתידית; מידע שכבר נשלח לספק אינו נמחק בעקבות הביטול.
+            האישור מפעיל גם גלילה חלקה ואנימציות בלי תלות בהגדרת הפחתת התנועה במכשיר.
+            ״עצירת אנימציות״ בתפריט הנגישות תמיד גוברת על האישור.
           </p>
         </section>
 

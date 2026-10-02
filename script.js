@@ -7,11 +7,13 @@ const accessibilityPanel = document.getElementById("accessibility-panel");
 const closePanelButton = document.getElementById("close-panel");
 const cookieBanner = document.getElementById("cookie-banner");
 const cookieAcceptButton = document.getElementById("cookie-accept");
+const cookieRejectButton = document.getElementById("cookie-reject");
 const projectsMapElement = document.getElementById("projects-map");
 const projectsMapShell = projectsMapElement ? projectsMapElement.closest(".projects-map-shell") : null;
 const revealTargets = document.querySelectorAll("[data-reveal]");
+const heroElement = document.getElementById("hero");
 const accessibilityStorageKey = "asiseng-accessibility-settings";
-const cookieConsentStorageKey = "asiseng-cookie-consent";
+const cookieConsentStorageKey = "asiseng-cookie-consent-v2";
 const mapboxToken =
   "pk.eyJ1IjoiaWRhbmg1IiwiYSI6ImNtcDAybXY4aDExZ3YycHNmeGN3cTkxeW8ifQ.vqvma0E55jOZdxpoQHoNBQ";
 
@@ -37,13 +39,17 @@ const bodyClassMap = {
 
 let revealObserver;
 let mapInstance;
+let mapAssetsPromise;
+let heroObserver;
+const accessibilityToggleHome = document.createComment("accessibility toggle desktop position");
+accessibilityToggle?.before(accessibilityToggleHome);
 
 if ("scrollRestoration" in history) {
   history.scrollRestoration = "manual";
 }
 
 function shouldReduceMotion() {
-  return state.stopMotion || media.reducedMotion.matches;
+  return state.stopMotion || (media.reducedMotion.matches && !hasCookieConsent());
 }
 
 function hasCookieConsent() {
@@ -56,7 +62,12 @@ function applyAccessibilityState() {
   document.body.classList.toggle(bodyClassMap.readableFont, state.readableFont);
   document.body.classList.toggle(bodyClassMap.underlineLinks, state.underlineLinks);
   document.body.classList.toggle(bodyClassMap.stopMotion, state.stopMotion);
+  syncMotionPreference();
   localStorage.setItem(accessibilityStorageKey, JSON.stringify(state));
+}
+
+function syncMotionPreference() {
+  document.documentElement.classList.toggle("motion-enabled", !shouldReduceMotion());
 }
 
 function loadAccessibilityState() {
@@ -76,6 +87,17 @@ function setPanelState(isOpen) {
   accessibilityToggle.setAttribute("aria-expanded", String(isOpen));
 }
 
+function positionAccessibilityToggle() {
+  if (!accessibilityToggle) return;
+  if (media.desktop.matches) {
+    accessibilityToggleHome.after(accessibilityToggle);
+  } else if (navToggle) {
+    navToggle.before(accessibilityToggle);
+  } else {
+    document.querySelector(".site-header__inner")?.append(accessibilityToggle);
+  }
+}
+
 function setNavState(isOpen) {
   if (!mainNav || !navToggle) return;
 
@@ -93,50 +115,99 @@ function setCookieBannerState(isVisible) {
   document.body.classList.toggle("cookie-banner-open", isVisible);
 }
 
-function initMapbox() {
+function loadMapAssets() {
+  if (window.mapboxgl) return Promise.resolve();
+  if (mapAssetsPromise) return mapAssetsPromise;
+
+  const stylesheet = document.createElement("link");
+  stylesheet.rel = "stylesheet";
+  stylesheet.href = "https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css";
+  document.head.append(stylesheet);
+
+  mapAssetsPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js";
+    script.onload = resolve;
+    script.onerror = () => {
+      script.remove();
+      stylesheet.remove();
+      mapAssetsPromise = undefined;
+      reject(new Error("Map assets unavailable"));
+    };
+    document.head.append(script);
+  });
+  return mapAssetsPromise;
+}
+
+async function initMapbox() {
   if (!projectsMapElement || mapInstance || !hasCookieConsent()) return;
-  if (!window.mapboxgl) return;
+  try {
+    await loadMapAssets();
+    if (!hasCookieConsent() || mapInstance || !window.mapboxgl) return;
 
-  window.mapboxgl.accessToken = mapboxToken;
+    window.mapboxgl.accessToken = mapboxToken;
 
-  mapInstance = new window.mapboxgl.Map({
-    container: projectsMapElement,
-    style: "mapbox://styles/mapbox/dark-v11",
-    center: [34.5969, 31.5242],
-    zoom: 11.4,
-    attributionControl: false,
-  });
+    mapInstance = new window.mapboxgl.Map({
+      container: projectsMapElement,
+      style: "mapbox://styles/mapbox/dark-v11",
+      center: [34.5969, 31.5242],
+      zoom: 11.4,
+      attributionControl: false,
+      cooperativeGestures: !media.desktop.matches,
+    });
 
-  mapInstance.addControl(
-    new window.mapboxgl.NavigationControl({
-      showCompass: false,
-    }),
-    "top-left",
-  );
+    mapInstance.addControl(
+      new window.mapboxgl.NavigationControl({
+        showCompass: false,
+      }),
+      "top-left",
+    );
 
-  mapInstance.addControl(new window.mapboxgl.AttributionControl({ compact: true }));
+    mapInstance.addControl(new window.mapboxgl.AttributionControl({ compact: true }));
 
-  const marker = new window.mapboxgl.Marker({ color: "#d2a566" })
-    .setLngLat([34.5969, 31.5242])
-    .setPopup(
-      new window.mapboxgl.Popup({ offset: 18, focusAfterOpen: false }).setHTML(
-        "<strong>עסיס הנדסה ומבנים</strong>",
-      ),
-    )
-    .addTo(mapInstance);
+    const marker = new window.mapboxgl.Marker({ color: "#d2a566" })
+      .setLngLat([34.5969, 31.5242])
+      .setPopup(
+        new window.mapboxgl.Popup({ offset: 18, focusAfterOpen: false }).setHTML(
+          "<strong>עסיס הנדסה ומבנים</strong>",
+        ),
+      )
+      .addTo(mapInstance);
 
-  marker.togglePopup();
+    marker.togglePopup();
 
-  mapInstance.on("load", () => {
-    projectsMapShell?.classList.add("is-active");
-    mapInstance.resize();
-  });
+    mapInstance.on("load", () => {
+      projectsMapShell?.classList.add("is-active");
+      mapInstance.resize();
+    });
+  } catch {
+    const placeholder = document.getElementById("projects-map-placeholder");
+    if (placeholder && hasCookieConsent()) {
+      placeholder.textContent = "המפה אינה זמינה כרגע. ניתן ליצור קשר בטלפון.";
+    }
+  }
 }
 
 function acceptCookies() {
   localStorage.setItem(cookieConsentStorageKey, "accepted");
   setCookieBannerState(false);
+  syncMotionPreference();
+  initRevealObserver();
   initMapbox();
+}
+
+function rejectOptionalCookies() {
+  localStorage.setItem(cookieConsentStorageKey, "essential");
+  setCookieBannerState(false);
+  if (mapInstance) {
+    mapInstance.remove();
+    mapInstance = undefined;
+  }
+  projectsMapShell?.classList.remove("is-active");
+  const placeholder = document.getElementById("projects-map-placeholder");
+  if (placeholder) placeholder.textContent = "אשרו שירותים חיצוניים בהגדרות הפרטיות כדי לטעון את המפה";
+  syncMotionPreference();
+  initRevealObserver();
 }
 
 function handleAccessibilityAction(action) {
@@ -175,7 +246,10 @@ function handleAccessibilityAction(action) {
 }
 
 function initIntro() {
-  if (!introScreen || !siteShell) return;
+  if (!introScreen || !siteShell) {
+    initRevealObserver();
+    return;
+  }
 
   const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   const saveData = Boolean(connection && connection.saveData);
@@ -185,6 +259,10 @@ function initIntro() {
   window.setTimeout(() => {
     introScreen.classList.add("is-hidden");
     siteShell.classList.add("is-ready");
+    // Let the page appear before starting its entrance effects.
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(initRevealObserver);
+    });
   }, introDelay);
 }
 
@@ -201,7 +279,7 @@ function initRevealObserver() {
     revealObserver.disconnect();
   }
 
-  if (shouldReduceMotion()) {
+  if (shouldReduceMotion() || !("IntersectionObserver" in window)) {
     revealTargets.forEach((element) => element.classList.add("is-visible"));
     return;
   }
@@ -217,15 +295,29 @@ function initRevealObserver() {
       });
     },
     {
-      threshold: 0.12,
-      rootMargin: "0px 0px -8% 0px",
+      threshold: media.desktop.matches ? 0.12 : 0.01,
+      rootMargin: media.desktop.matches ? "0px 0px -8% 0px" : "0px 0px -32px 0px",
     },
   );
 
   revealTargets.forEach((element) => revealObserver.observe(element));
 }
 
+function initHeroObserver() {
+  heroObserver?.disconnect();
+  if (!heroElement || media.desktop.matches || !("IntersectionObserver" in window)) return;
+  heroObserver = new IntersectionObserver(([entry]) => {
+    heroElement.classList.toggle("is-in-view", entry.isIntersecting);
+  });
+  heroObserver.observe(heroElement);
+}
+
 document.addEventListener("click", (event) => {
+  if (event.target.closest("[data-cookie-settings]")) {
+    setPanelState(false);
+    setCookieBannerState(true);
+    cookieAcceptButton?.focus({ preventScroll: true });
+  }
   const actionTarget = event.target.closest("[data-action]");
   if (actionTarget) {
     handleAccessibilityAction(actionTarget.dataset.action);
@@ -280,6 +372,8 @@ if (cookieAcceptButton) {
   cookieAcceptButton.addEventListener("click", acceptCookies);
 }
 
+cookieRejectButton?.addEventListener("click", rejectOptionalCookies);
+
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     setPanelState(false);
@@ -289,12 +383,17 @@ document.addEventListener("keydown", (event) => {
 
 media.desktop.addEventListener("change", () => {
   setNavState(false);
+  positionAccessibilityToggle();
+  initRevealObserver();
+  initHeroObserver();
   if (mapInstance) {
+    mapInstance.setCooperativeGestures(!media.desktop.matches);
     window.requestAnimationFrame(() => mapInstance.resize());
   }
 });
 
 media.reducedMotion.addEventListener("change", () => {
+  syncMotionPreference();
   initRevealObserver();
 });
 
@@ -309,9 +408,10 @@ window.addEventListener("pageshow", () => {
 });
 
 loadAccessibilityState();
+positionAccessibilityToggle();
 applyAccessibilityState();
-setCookieBannerState(!hasCookieConsent());
+setCookieBannerState(!["accepted", "essential"].includes(localStorage.getItem(cookieConsentStorageKey)));
 resetInitialScroll();
 initIntro();
-initRevealObserver();
+initHeroObserver();
 initMapbox();
