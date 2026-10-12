@@ -167,6 +167,69 @@ function loadMapAssets() {
   return mapAssetsPromise;
 }
 
+// The visible HTML list is also the source of truth for map content.
+const projectCards = [...document.querySelectorAll(".project-card")];
+const projectMarkers = new Map();
+let selectedProject;
+
+function visibleProjects() {
+  return projectCards.filter((card) => !card.hidden);
+}
+
+function fitProjectBounds() {
+  if (!mapInstance || !visibleProjects().length) return;
+  const bounds = new window.mapboxgl.LngLatBounds();
+  visibleProjects().forEach((card) => bounds.extend([Number(card.dataset.lng), Number(card.dataset.lat)]));
+  mapInstance.fitBounds(bounds, { padding: 48, maxZoom: 11, duration: shouldReduceMotion() ? 0 : 700 });
+}
+
+function selectProject(card, moveMap = true) {
+  selectedProject = card;
+  projectCards.forEach((item) => {
+    const selected = item === card;
+    item.classList.toggle("is-selected", selected);
+    item.querySelector("button").setAttribute("aria-pressed", String(selected));
+    const marker = projectMarkers.get(item);
+    marker?.getElement().setAttribute("aria-pressed", String(selected));
+    if (marker?.getPopup().isOpen()) marker.getPopup().remove();
+  });
+  const marker = projectMarkers.get(card);
+  if (!marker || card.hidden) return;
+  marker.togglePopup();
+  if (moveMap) {
+    mapInstance.flyTo({ center: marker.getLngLat(), zoom: 11, duration: shouldReduceMotion() ? 0 : 900 });
+  }
+}
+
+function filterProjects(category) {
+  document.querySelectorAll("[data-project-filter]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.projectFilter === category));
+  });
+  projectCards.forEach((card) => {
+    card.hidden = category !== "all" && card.dataset.category !== category;
+    const marker = projectMarkers.get(card);
+    if (marker) {
+      if (card.hidden) marker.remove();
+      else marker.addTo(mapInstance);
+    }
+  });
+  if (selectedProject?.hidden) selectProject(undefined, false);
+  const count = document.getElementById("projects-count");
+  if (count) count.textContent = `${visibleProjects().length} פרויקטים נבחרים`;
+  fitProjectBounds();
+}
+
+projectCards.forEach((card) => {
+  card.querySelector("button").addEventListener("click", () => selectProject(card));
+});
+document.querySelectorAll("[data-project-filter]").forEach((button) => {
+  button.addEventListener("click", () => filterProjects(button.dataset.projectFilter));
+});
+document.getElementById("projects-map-reset")?.addEventListener("click", () => {
+  selectProject(undefined, false);
+  filterProjects("all");
+});
+
 async function initMapbox() {
   if (!projectsMapElement || mapInstance || !hasCookieConsent()) return;
   try {
@@ -178,8 +241,8 @@ async function initMapbox() {
     mapInstance = new window.mapboxgl.Map({
       container: projectsMapElement,
       style: "mapbox://styles/mapbox/dark-v11",
-      center: [34.5969, 31.5242],
-      zoom: 11.4,
+      center: [34.95, 32.1],
+      zoom: 6.5,
       attributionControl: false,
       cooperativeGestures: !media.desktop.matches,
     });
@@ -193,25 +256,44 @@ async function initMapbox() {
 
     mapInstance.addControl(new window.mapboxgl.AttributionControl({ compact: true }));
 
-    const marker = new window.mapboxgl.Marker({ color: "#d2a566" })
-      .setLngLat([34.5969, 31.5242])
-      .setPopup(
-        new window.mapboxgl.Popup({ offset: 18, focusAfterOpen: false }).setHTML(
-          "<strong>עסיס הנדסה ומבנים</strong>",
-        ),
-      )
-      .addTo(mapInstance);
-
-    marker.togglePopup();
+    projectCards.forEach((card, index) => {
+      const pin = document.createElement("button");
+      pin.type = "button";
+      pin.className = "project-map-marker";
+      pin.dataset.category = card.dataset.category;
+      pin.textContent = String(index + 1).padStart(2, "0");
+      pin.setAttribute("aria-label", card.querySelector("button").getAttribute("aria-label"));
+      pin.setAttribute("aria-pressed", "false");
+      const content = document.createElement("div");
+      content.className = "project-popup";
+      [".project-card__city", ".project-card__title", ".project-card__description"].forEach((selector) => {
+        content.append(card.querySelector(selector).cloneNode(true));
+      });
+      const popup = new window.mapboxgl.Popup({ offset: 24, maxWidth: "300px", focusAfterOpen: false })
+        .setDOMContent(content);
+      const marker = new window.mapboxgl.Marker({ element: pin })
+        .setLngLat([Number(card.dataset.lng), Number(card.dataset.lat)])
+        .setPopup(popup);
+      projectMarkers.set(card, marker);
+      if (!card.hidden) marker.addTo(mapInstance);
+      // Stop Mapbox's automatic toggle; selection handles all popups together.
+      pin.addEventListener("click", (event) => {
+        event.stopPropagation();
+        selectProject(card);
+      });
+    });
+    fitProjectBounds();
 
     mapInstance.on("load", () => {
       projectsMapShell?.classList.add("is-active");
       mapInstance.resize();
+      fitProjectBounds();
+      if (selectedProject && !selectedProject.hidden) selectProject(selectedProject);
     });
   } catch {
     const placeholder = document.getElementById("projects-map-placeholder");
     if (placeholder && hasCookieConsent()) {
-      placeholder.textContent = "המפה אינה זמינה כרגע. ניתן ליצור קשר בטלפון.";
+      placeholder.textContent = "המפה אינה זמינה כרגע. כל פרטי הפרויקטים זמינים ברשימה למטה.";
     }
   }
 }
@@ -230,10 +312,11 @@ function rejectOptionalCookies() {
   if (mapInstance) {
     mapInstance.remove();
     mapInstance = undefined;
+    projectMarkers.clear();
   }
   projectsMapShell?.classList.remove("is-active");
   const placeholder = document.getElementById("projects-map-placeholder");
-  if (placeholder) placeholder.textContent = "אשרו שירותים חיצוניים בהגדרות הפרטיות כדי לטעון את המפה";
+  if (placeholder) placeholder.textContent = "אשרו שירותים חיצוניים בהגדרות הפרטיות כדי לטעון את המפה. פרטי הפרויקטים זמינים ברשימה למטה.";
   syncMotionPreference();
   initRevealObserver();
 }
