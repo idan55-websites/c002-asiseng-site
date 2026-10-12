@@ -172,18 +172,97 @@ const projectCards = [...document.querySelectorAll(".project-card")];
 const projectMarkers = new Map();
 let selectedProject;
 
-function visibleProjects() {
-  return projectCards.filter((card) => !card.hidden);
-}
+let galleryIndex = 0;
+let markerLayoutFrame;
+const gallery = document.querySelector(".projects__list");
+const connections = document.querySelector(".projects-map__connections");
 
-function fitProjectBounds() {
-  if (!mapInstance || !visibleProjects().length) return;
+function fitProjectBounds(duration = shouldReduceMotion() ? 0 : 800) {
+  if (!mapInstance || !projectCards.length) return;
   const bounds = new window.mapboxgl.LngLatBounds();
-  visibleProjects().forEach((card) => bounds.extend([Number(card.dataset.lng), Number(card.dataset.lat)]));
-  mapInstance.fitBounds(bounds, { padding: 48, maxZoom: 11, duration: shouldReduceMotion() ? 0 : 700 });
+  projectCards.forEach((card) => bounds.extend([Number(card.dataset.lng), Number(card.dataset.lat)]));
+  mapInstance.fitBounds(bounds, { padding: { top: 75, bottom: 65, left: 65, right: 65 }, maxZoom: 10, duration });
 }
 
-function selectProject(card, moveMap = true) {
+// Separate nearby labels on screen while retaining a line to their true location.
+// Recompute after camera/viewport changes, without changing geographic coordinates.
+function layoutProjectMarkers() {
+  if (!mapInstance || !connections) return;
+  const width = projectsMapElement.clientWidth;
+  const height = projectsMapElement.clientHeight;
+  const occupied = [];
+  const lines = document.createDocumentFragment();
+  const svgNS = "http://www.w3.org/2000/svg";
+  projectMarkers.forEach((marker) => {
+    const point = mapInstance.project(marker.getLngLat());
+    const element = marker.getElement();
+    if (point.x < 0 || point.x > width || point.y < 0 || point.y > height) {
+      marker.setOffset([0, 0]);
+      return;
+    }
+    const halfWidth = element.offsetWidth / 2 + 5;
+    const halfHeight = element.offsetHeight / 2 + 5;
+    let placement;
+    // Search outwards from the exact point, choosing the closest free space.
+    for (let ring = 0; ring < 22 && !placement; ring++) {
+      const steps = ring ? ring * 8 : 1;
+      for (let step = 0; step < steps; step++) {
+        const angle = (step / steps) * Math.PI * 2;
+        const x = point.x + Math.cos(angle) * ring * 14;
+        const y = point.y + Math.sin(angle) * ring * 14;
+        const rect = { left: x - halfWidth, right: x + halfWidth, top: y - halfHeight, bottom: y + halfHeight };
+        if (rect.left < 8 || rect.right > width - 8 || rect.top < 10 || rect.bottom > height - 25) continue;
+        if (rect.left < 50 && rect.top < 110) continue;
+        if (occupied.some((other) => rect.left < other.right && rect.right > other.left && rect.top < other.bottom && rect.bottom > other.top)) continue;
+        placement = { x, y, rect };
+        break;
+      }
+    }
+    if (!placement) { marker.setOffset([0, 0]); return; }
+    occupied.push(placement.rect);
+    marker.setOffset([placement.x - point.x, placement.y - point.y]);
+    if (Math.hypot(placement.x - point.x, placement.y - point.y) > 5) {
+      const line = document.createElementNS(svgNS, "line");
+      line.setAttribute("x1", point.x); line.setAttribute("y1", point.y);
+      line.setAttribute("x2", placement.x); line.setAttribute("y2", placement.y);
+      const dot = document.createElementNS(svgNS, "circle");
+      dot.setAttribute("cx", point.x); dot.setAttribute("cy", point.y); dot.setAttribute("r", "3");
+      lines.append(line, dot);
+    }
+  });
+  connections.replaceChildren(lines);
+}
+
+function scheduleMarkerLayout() {
+  if (markerLayoutFrame) return;
+  markerLayoutFrame = window.requestAnimationFrame(() => {
+    markerLayoutFrame = undefined;
+    layoutProjectMarkers();
+  });
+}
+
+function syncGalleryControls(index) {
+  galleryIndex = index;
+  const position = document.getElementById("projects-position");
+  const visibleCount = gallery && projectCards[0]
+    ? Math.max(1, Math.round((gallery.clientWidth + 16) / (projectCards[0].getBoundingClientRect().width + 16))) : 1;
+  const end = Math.min(projectCards.length, index + visibleCount);
+  if (position) position.textContent = visibleCount > 1
+    ? `${String(index + 1).padStart(2, "0")}–${String(end).padStart(2, "0")} / ${projectCards.length}`
+    : `${String(index + 1).padStart(2, "0")} / ${projectCards.length}`;
+  const previous = document.getElementById("projects-prev");
+  const next = document.getElementById("projects-next");
+  if (previous) previous.disabled = index === 0;
+  if (next) next.disabled = index >= projectCards.length - visibleCount;
+}
+
+function revealGalleryCard(card) {
+  if (!gallery || !card) return;
+  const distance = card.getBoundingClientRect().right - gallery.getBoundingClientRect().right;
+  gallery.scrollTo({ left: gallery.scrollLeft + distance, behavior: shouldReduceMotion() ? "instant" : "smooth" });
+}
+
+function selectProject(card, moveMap = true, revealCard = false) {
   selectedProject = card;
   projectCards.forEach((item) => {
     const selected = item === card;
@@ -191,43 +270,46 @@ function selectProject(card, moveMap = true) {
     item.querySelector("button").setAttribute("aria-pressed", String(selected));
     const marker = projectMarkers.get(item);
     marker?.getElement().setAttribute("aria-pressed", String(selected));
+    marker?.getElement().setAttribute("aria-expanded", "false");
     if (marker?.getPopup().isOpen()) marker.getPopup().remove();
   });
+  if (!card) return;
+  syncGalleryControls(projectCards.indexOf(card));
+  if (revealCard) revealGalleryCard(card);
   const marker = projectMarkers.get(card);
-  if (!marker || card.hidden) return;
+  if (!marker) return;
   marker.togglePopup();
-  if (moveMap) {
-    mapInstance.flyTo({ center: marker.getLngLat(), zoom: 11, duration: shouldReduceMotion() ? 0 : 900 });
-  }
-}
-
-function filterProjects(category) {
-  document.querySelectorAll("[data-project-filter]").forEach((button) => {
-    button.setAttribute("aria-pressed", String(button.dataset.projectFilter === category));
-  });
-  projectCards.forEach((card) => {
-    card.hidden = category !== "all" && card.dataset.category !== category;
-    const marker = projectMarkers.get(card);
-    if (marker) {
-      if (card.hidden) marker.remove();
-      else marker.addTo(mapInstance);
-    }
-  });
-  if (selectedProject?.hidden) selectProject(undefined, false);
-  const count = document.getElementById("projects-count");
-  if (count) count.textContent = `${visibleProjects().length} פרויקטים נבחרים`;
-  fitProjectBounds();
+  marker.getElement().setAttribute("aria-expanded", "true");
+  if (moveMap) mapInstance.flyTo({ center: marker.getLngLat(), zoom: 10.5, duration: shouldReduceMotion() ? 0 : 1100 });
 }
 
 projectCards.forEach((card) => {
   card.querySelector("button").addEventListener("click", () => selectProject(card));
 });
-document.querySelectorAll("[data-project-filter]").forEach((button) => {
-  button.addEventListener("click", () => filterProjects(button.dataset.projectFilter));
+["prev", "next"].forEach((direction) => {
+  document.getElementById(`projects-${direction}`)?.addEventListener("click", () => {
+    const index = Math.max(0, Math.min(projectCards.length - 1, galleryIndex + (direction === "next" ? 1 : -1)));
+    revealGalleryCard(projectCards[index]);
+    syncGalleryControls(index);
+  });
 });
+let galleryScrollFrame;
+gallery?.addEventListener("scroll", () => {
+  if (galleryScrollFrame) return;
+  galleryScrollFrame = window.requestAnimationFrame(() => {
+    galleryScrollFrame = undefined;
+    const edge = gallery.getBoundingClientRect().right;
+    let nearest = 0;
+    projectCards.forEach((card, index) => {
+      if (Math.abs(card.getBoundingClientRect().right - edge) < Math.abs(projectCards[nearest].getBoundingClientRect().right - edge)) nearest = index;
+    });
+    syncGalleryControls(nearest);
+  });
+}, { passive: true });
+syncGalleryControls(0);
 document.getElementById("projects-map-reset")?.addEventListener("click", () => {
   selectProject(undefined, false);
-  filterProjects("all");
+  fitProjectBounds();
 });
 
 async function initMapbox() {
@@ -260,8 +342,13 @@ async function initMapbox() {
       const pin = document.createElement("button");
       pin.type = "button";
       pin.className = "project-map-marker";
-      pin.dataset.category = card.dataset.category;
-      pin.textContent = String(index + 1).padStart(2, "0");
+      const number = document.createElement("span");
+      number.className = "project-map-marker__number";
+      number.textContent = String(index + 1).padStart(2, "0");
+      const city = document.createElement("span");
+      city.className = "project-map-marker__city";
+      city.textContent = card.querySelector(".project-card__city").textContent;
+      pin.append(number, city);
       pin.setAttribute("aria-label", card.querySelector("button").getAttribute("aria-label"));
       pin.setAttribute("aria-pressed", "false");
       const content = document.createElement("div");
@@ -271,24 +358,27 @@ async function initMapbox() {
       });
       const popup = new window.mapboxgl.Popup({ offset: 24, maxWidth: "300px", focusAfterOpen: false })
         .setDOMContent(content);
-      const marker = new window.mapboxgl.Marker({ element: pin })
+      const marker = new window.mapboxgl.Marker({ element: pin, anchor: "center" })
         .setLngLat([Number(card.dataset.lng), Number(card.dataset.lat)])
         .setPopup(popup);
       projectMarkers.set(card, marker);
-      if (!card.hidden) marker.addTo(mapInstance);
+      marker.addTo(mapInstance);
       // Stop Mapbox's automatic toggle; selection handles all popups together.
       pin.addEventListener("click", (event) => {
         event.stopPropagation();
-        selectProject(card);
+        selectProject(card, true, true);
       });
     });
     fitProjectBounds();
+    mapInstance.on("move", scheduleMarkerLayout);
+    mapInstance.on("resize", scheduleMarkerLayout);
 
     mapInstance.on("load", () => {
       projectsMapShell?.classList.add("is-active");
       mapInstance.resize();
       fitProjectBounds();
-      if (selectedProject && !selectedProject.hidden) selectProject(selectedProject);
+      scheduleMarkerLayout();
+      if (selectedProject) selectProject(selectedProject);
     });
   } catch {
     const placeholder = document.getElementById("projects-map-placeholder");
@@ -313,6 +403,7 @@ function rejectOptionalCookies() {
     mapInstance.remove();
     mapInstance = undefined;
     projectMarkers.clear();
+    connections?.replaceChildren();
   }
   projectsMapShell?.classList.remove("is-active");
   const placeholder = document.getElementById("projects-map-placeholder");
@@ -509,9 +600,13 @@ media.reducedMotion.addEventListener("change", () => {
 });
 
 window.addEventListener("resize", () => {
-  if (mapInstance) {
-    window.requestAnimationFrame(() => mapInstance.resize());
-  }
+  window.requestAnimationFrame(() => {
+    syncGalleryControls(galleryIndex);
+    if (mapInstance) {
+      mapInstance.resize();
+      if (!selectedProject) fitProjectBounds(0);
+    }
+  });
 });
 
 window.addEventListener("pageshow", () => {

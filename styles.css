@@ -1838,48 +1838,86 @@ button:focus-visible {
   }
 }
 
-/* Project catalog and map share the same numbering and category colors. */
-.projects__content > p { color: var(--muted); line-height: 1.8; }
-.projects__stats { display: flex; flex-wrap: wrap; gap: 2rem; margin-top: 1.75rem; }
-.projects__stats span { display: grid; gap: 0.25rem; color: var(--muted); }
-.projects__stats strong { font-size: 2.75rem; line-height: 1.1; color: var(--accent-strong); font-weight: 500; }
-.projects__content .projects__more { color: var(--accent-strong); font-size: 0.9rem; }
-.projects__reset { border: 1px solid var(--line); border-radius: 2rem; background: transparent; color: var(--accent-strong); padding: 0.5rem 0.8rem; font: inherit; cursor: pointer; }
-.projects__map-note { margin: 0.8rem 0 0; color: var(--muted); font-size: 0.8rem; line-height: 1.7; }
-.projects__catalog { grid-column: 1 / -1; min-width: 0; }
-.projects__toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin: 1rem 0 1.25rem; }
-.projects__filters { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.projects__filters button { border: 1px solid var(--line); border-radius: 2rem; padding: 0.6rem 1rem; background: var(--surface); color: var(--muted); font: inherit; font-size: 0.9rem; cursor: pointer; }
-.projects__filters button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg-deep); }
-.projects__count { margin: 0; color: var(--muted); font-size: 0.85rem; }
-.projects__list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.85rem; list-style: none; margin: 0; padding: 0; }
-.project-card { --project-color: #d2a566; min-width: 0; border: 1px solid var(--line); border-radius: 1.25rem; background: var(--surface); overflow: hidden; }
-.project-card[data-category="residential"], .project-map-marker[data-category="residential"] { --project-color: #8ab6ce; }
-.project-card[data-category="rehabilitation"], .project-map-marker[data-category="rehabilitation"] { --project-color: #a6c6aa; }
-.project-card[data-category="infrastructure"], .project-map-marker[data-category="infrastructure"] { --project-color: #c4afe0; }
-.project-card[hidden] { display: none; }
-.project-card__button { display: block; width: 100%; height: 100%; padding: 1.25rem; border: 0; background: transparent; text-align: right; color: var(--text); font: inherit; cursor: pointer; }
-.project-card:hover, .project-card.is-selected { border-color: var(--project-color); background: var(--surface-soft); }
-.project-card__top { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.9rem; }
-.project-card__number { color: var(--project-color); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
-.project-card__category { color: var(--project-color); font-size: 0.75rem; border-inline-start: 1px solid var(--line); padding-inline-start: 0.5rem; }
-.project-card__city { margin-inline-start: auto; color: var(--muted); font-size: 0.85rem; }
-.project-card__title { display: block; font-size: 1.05rem; font-weight: 600; line-height: 1.5; margin-bottom: 0.45rem; }
-.project-card__description { display: block; color: var(--muted); font-size: 0.85rem; line-height: 1.8; }
-.project-map-marker { --project-color: #d2a566; width: 34px; height: 34px; border: 2px solid var(--project-color); border-radius: 50%; background: #071019; color: var(--project-color); box-shadow: 0 3px 14px #0008; font: 600 12px "Heebo", sans-serif; cursor: pointer; }
-.project-map-marker[aria-pressed="true"] { background: var(--project-color); color: #071019; box-shadow: 0 0 0 5px #ffffff24; }
-.project-popup .project-card__city { display: block; color: #795525; margin: 0 0 0.4rem; }
-.project-popup .project-card__description { color: #354755; }
-.projects-map .mapboxgl-popup-close-button { font-size: 1.35rem; padding: 0.2rem 0.5rem; }
-.projects-map-shell { min-height: 26rem; }
+
+/* A wide map and a swipeable project gallery. */
+.projects__grid { grid-template-columns: minmax(0, 1fr); gap: 1.75rem; }
+.projects__content { max-width: 48rem; }
+.projects__content h2 { font-size: clamp(2rem, 4vw, 3.3rem); line-height: 1.3; margin-bottom: 1rem; }
+.projects__content > p { color: var(--muted); line-height: 1.85; }
+.projects__scope { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.65rem; font-size: 0.9rem; }
+.projects__scope strong { color: var(--accent-strong); font-size: 1.4rem; }
+.projects__scope > span { color: var(--accent); padding-inline: 0.4rem; }
+.projects__panel { padding: 0; border-radius: 1.5rem; overflow: hidden; background: #0b1720; }
+.projects__panel-head { padding: 1rem 1.5rem; margin: 0; }
+.projects__map-label { display: flex; align-items: center; gap: 0.65rem; margin: 0; font-size: 0.9rem; color: var(--text); }
+.projects__map-label > span { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-strong); box-shadow: 0 0 12px var(--accent); flex-shrink: 0; }
+.projects__reset { border: 0; background: transparent; color: var(--accent-strong); padding: 0.65rem 0; font: inherit; font-size: 0.85rem; cursor: pointer; min-height: 44px; white-space: nowrap; }
+.projects-map-shell { min-height: 580px; border: 0; border-radius: 0; }
+.projects__map-note { margin: 0; padding: 0.85rem 1.5rem; color: var(--muted); font-size: 0.78rem; line-height: 1.8; border-top: 1px solid var(--line); }
+.projects-map__connections { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+.projects-map__connections line { stroke: #f1c58c; stroke-width: 1.2; opacity: 0.75; }
+.projects-map__connections circle { fill: #fff2da; }
+.projects-map__placeholder { z-index: 3; }
+.project-map-marker { z-index: 2; height: 42px; display: flex; align-items: center; gap: 7px; border: 1px solid #ffe0af; border-radius: 24px; background: #f1c58c; padding: 0 12px 0 5px; color: #151b21; cursor: pointer; box-shadow: 0 3px 15px #0009; font: 600 12px "Heebo", sans-serif; direction: ltr; }
+.project-map-marker__number { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #15212a; color: #fff2da; font-size: 11px; flex-shrink: 0; }
+.project-map-marker__city { direction: rtl; white-space: nowrap; }
+.project-map-marker:hover, .project-map-marker[aria-pressed="true"] { background: #fff3dc; border-color: #fff; z-index: 3; }
+.project-map-marker[aria-pressed="true"]::after { content: ""; position: absolute; inset: -5px; border: 1px solid #f1c58c; border-radius: inherit; pointer-events: none; }
+html.motion-enabled .project-map-marker[aria-pressed="true"]::after { animation: project-pin-pulse 2.2s ease-out infinite; }
+@keyframes project-pin-pulse { 0% { opacity: 0.8; scale: 1; } 100% { opacity: 0; scale: 1.3; } }
+.projects-map .mapboxgl-popup { z-index: 4; }
+.projects-map .mapboxgl-popup-content { background: #faf5ec; color: #15212a; border-radius: 14px; box-shadow: 0 12px 40px #0007; padding: 1.3rem; }
+.projects-map .mapboxgl-popup-tip { border-top-color: #faf5ec; border-bottom-color: #faf5ec; }
+.project-popup .project-card__city { display: block; color: #8a5c22; font-size: 0.85rem; margin-bottom: 0.45rem; }
+.project-popup .project-card__title { font-size: 1.1rem; }
+.project-popup .project-card__description { color: #46515b; font-size: 0.85rem; }
+.projects-map .mapboxgl-popup-close-button { font-size: 1.5rem; padding: 0 0.4rem; color: #15212a; }
+.projects__catalog { min-width: 0; }
+.projects__toolbar { display: flex; justify-content: space-between; align-items: end; gap: 1.5rem; margin-top: 1rem; }
+.projects__toolbar .section-tag { margin-bottom: 0.5rem; }
+.projects__toolbar h3 { font-size: clamp(1.2rem, 2vw, 1.65rem); margin: 0; font-weight: 500; line-height: 1.5; }
+.projects__browse { display: flex; gap: 0.5rem; align-items: center; flex-shrink: 0; }
+.projects__browse button { display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 50%; width: 46px; height: 46px; background: transparent; color: var(--text); font-size: 1.35rem; cursor: pointer; transition: background 0.25s, color 0.25s; }
+.projects__browse button:hover { background: var(--accent); color: #071019; }
+.projects__browse button:disabled { opacity: 0.35; cursor: default; }
+.projects__position { color: var(--accent-strong); font-size: 0.8rem; direction: ltr; font-variant-numeric: tabular-nums; margin-inline-end: 0.5rem; }
+.projects__swipe-hint { color: var(--muted); font-size: 0.8rem; margin: 0.7rem 0 1.2rem; }
+.projects__list { position: relative; display: flex; gap: 1rem; list-style: none; margin: 0; padding: 0.3rem 0 1.2rem; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: var(--accent) transparent; }
+.project-card { flex: 0 0 calc((100% - 2rem) / 3); min-width: 0; scroll-snap-align: start; border-top: 1px solid var(--line-strong); }
+.project-card__button { position: relative; display: flex; flex-direction: column; height: 100%; width: 100%; padding: 1.5rem 1.1rem; text-align: start; border: 0; border-radius: 0 0 12px 12px; background: linear-gradient(180deg, #ffffff04, transparent); color: var(--text); font: inherit; cursor: pointer; transition: background 0.35s, box-shadow 0.35s; }
+.project-card__button::after { content: "↗"; color: var(--accent); margin-top: auto; padding-top: 1.5rem; font-size: 1.35rem; transition: translate 0.3s; }
+.project-card:hover .project-card__button, .project-card.is-selected .project-card__button { background: linear-gradient(180deg, #d2a56614, #d2a56605); box-shadow: inset 0 2px var(--accent-strong); }
+.project-card:hover .project-card__button::after { translate: -4px -4px; }
+.project-card__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: 100%; margin-bottom: 1.5rem; }
+.project-card__number { order: 2; font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.project-card__city { color: var(--accent-strong); font-size: 1.2rem; font-weight: 500; }
+.project-card__title { display: block; font-size: 1.12rem; font-weight: 500; line-height: 1.6; margin-bottom: 0.75rem; }
+.project-card__description { display: block; color: var(--muted); font-size: 0.9rem; line-height: 1.85; }
+/* Hebrew spacing follows the typeface; tracking compresses or separates letters. */
+:lang(he) :is(h1, h2, h3, .section-tag, .brand__eyebrow, .brand__title, .about__panel-label) { letter-spacing: normal; word-spacing: normal; }
 @media (max-width: 959px) {
-  .projects__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .projects-map-shell { min-height: 24rem; }
+  .projects-map-shell { min-height: 520px; }
+  .project-card { flex-basis: calc((100% - 1rem) / 2); }
 }
 @media (max-width: 599px) {
-  .projects__list { grid-template-columns: 1fr; }
-  .projects__panel { padding: 0.9rem; }
-  .projects-map-shell { min-height: 23rem; }
-  .projects__filters button { padding: 0.5rem 0.8rem; font-size: 0.8rem; }
-  .project-card__button { padding: 1rem; }
+  .projects__grid { gap: 1.2rem; }
+  .projects__panel-head { padding: 0.65rem 0.9rem; gap: 0.5rem; flex-wrap: nowrap; }
+  .projects__map-label { max-width: 12rem; font-size: 0.75rem; line-height: 1.6; }
+  .projects__reset { font-size: 0.75rem; }
+  .projects-map-shell { min-height: 500px; }
+  .projects__map-note { padding: 0.75rem 0.9rem; }
+  .project-map-marker { width: 42px; height: 42px; padding: 0; justify-content: center; }
+  .project-map-marker__number { background: transparent; color: #15212a; font-size: 13px; }
+  .project-map-marker__city { display: none; }
+  .projects__toolbar { align-items: center; gap: 0.75rem; }
+  .projects__toolbar h3 { max-width: 12rem; font-size: 1.12rem; }
+  .projects__browse { gap: 0.3rem; flex-wrap: wrap; justify-content: end; max-width: 100px; }
+  .projects__position { width: 100%; text-align: center; margin: 0; }
+  .projects__browse button { width: 44px; height: 44px; }
+  .project-card { flex-basis: 87%; }
+  .project-card__button { padding: 1.2rem 0.9rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .project-map-marker::after { animation: none !important; }
+  .project-card__button, .project-card__button::after { transition: none; }
 }

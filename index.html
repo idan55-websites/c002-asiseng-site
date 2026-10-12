@@ -375,139 +375,138 @@
           <div class="container projects__grid">
             <div class="projects__content" data-reveal>
               <p class="section-tag">פרויקטים נבחרים</p>
-              <h2 id="projects-heading">ניסיון בשטח.<br>דיוק בכל פרויקט.</h2>
-              <p>מאומדני כדאיות וכתבי כמויות ועד שיפוץ, הנגשה ושיקום — מבחר מהפרויקטים של עסיס הנדסה ומבנים.</p>
-              <div class="projects__stats"><span><strong>15</strong> פרויקטים נבחרים</span><span><strong>15</strong> יישובים</span></div>
-              <p class="projects__more">וזו רק חלק מהעשייה שלנו.</p>
+              <h2 id="projects-heading">הפרויקטים שלנו על המפה.</h2>
+              <p>אומדנים, כתבי כמויות ושיקום מבנים. מהגליל ועד הנגב — כל נקודה היא פרויקט עם סיפור משלו.</p>
+              <p class="projects__scope"><strong>15</strong> פרויקטים נבחרים <span aria-hidden="true">/</span> מצפון ועד דרום</p>
             </div>
             <div class="projects__panel" data-reveal="delay-1">
               <div class="projects__panel-head">
-                <p class="about__panel-label">הפרויקטים על המפה</p>
-                <button class="projects__reset" id="projects-map-reset" type="button">כל המיקומים ↗</button>
+                <p class="projects__map-label"><span aria-hidden="true"></span> לחצו על נקודה כדי לגלות את הפרויקט</p>
+                <button class="projects__reset" id="projects-map-reset" type="button">לכל המיקומים ↗</button>
               </div>
               <div class="projects-map-shell">
+                <svg class="projects-map__connections" aria-hidden="true"></svg>
                 <div class="projects-map" id="projects-map" role="region" aria-label="מפת מיקומי הפרויקטים"></div>
                 <div class="projects-map__placeholder" id="projects-map-placeholder">
                   אשרו שירותים חיצוניים בהגדרות הפרטיות כדי לטעון את המפה. פרטי הפרויקטים זמינים ברשימה למטה.
                 </div>
               </div>
-              <p class="projects__map-note">המיקומים מסמנים את היישובים, ולא את כתובות הפרויקטים. בחרו פרויקט ברשימה או נקודה במפה להצגת הפרטים.</p>
+              <p class="projects__map-note">המיקומים במפה מציינים את יישובי הפרויקטים. ניתן להתקרב למפה ולבחור כל נקודה.</p>
             </div>
             <div class="projects__catalog">
               <div class="projects__toolbar">
-                <div class="projects__filters" role="group" aria-label="סינון פרויקטים לפי סוג">
-                  <button type="button" data-project-filter="all" aria-pressed="true">הכול</button>
-                  <button type="button" data-project-filter="public" aria-pressed="false">מבני ציבור</button>
-                  <button type="button" data-project-filter="residential" aria-pressed="false">מגורים</button>
-                  <button type="button" data-project-filter="rehabilitation" aria-pressed="false">שיקום</button>
-                  <button type="button" data-project-filter="infrastructure" aria-pressed="false">תעשייה ותשתיות</button>
+                <div><p class="section-tag">מבחר מהעשייה שלנו</p><h3>מאחורי כל נקודה, עבודה מדויקת.</h3></div>
+                <div class="projects__browse" aria-label="ניווט בין הפרויקטים">
+                  <span class="projects__position" id="projects-position" aria-live="polite">01 / 15</span>
+                  <button type="button" id="projects-prev" aria-label="הפרויקט הקודם">→</button>
+                  <button type="button" id="projects-next" aria-label="הפרויקט הבא">←</button>
                 </div>
-                <p id="projects-count" class="projects__count" role="status">15 פרויקטים נבחרים</p>
               </div>
+              <p class="projects__swipe-hint">גללו בין הפרויקטים ובחרו פרויקט להצגה במפה</p>
               <ul class="projects__list">
-              <li class="project-card" data-category="residential" data-lng="34.8125" data-lat="32.0722">
+              <li class="project-card" data-reveal data-lng="34.8125" data-lat="32.0722">
                 <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת שלד בניין בן 8 קומות בגבעתיים במפה">
-                  <span class="project-card__top"><span class="project-card__number">01</span><span class="project-card__category">מגורים</span><span class="project-card__city">גבעתיים</span></span>
+                  <span class="project-card__top"><span class="project-card__number" aria-hidden="true">01</span> <span class="project-card__city">גבעתיים</span></span>
                   <span class="project-card__title">שלד בניין בן 8 קומות</span>
                   <span class="project-card__description">השוואת חלופות לאומדן כדאיות של שלד בניין בן 8 קומות.</span>
                 </button>
               </li>
-              <li class="project-card" data-category="public" data-lng="35.2441" data-lat="31.645">
-                <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת מבנה רב־תכליתי בנוקדים במפה">
-                  <span class="project-card__top"><span class="project-card__number">02</span><span class="project-card__category">מבני ציבור</span><span class="project-card__city">נוקדים</span></span>
-                  <span class="project-card__title">מבנה רב־תכליתי</span>
-                  <span class="project-card__description">הכנת אומדן וכתב כמויות למכרז שיפוץ כללי למבנה רב־תכליתי.</span>
+              <li class="project-card" data-reveal data-lng="35.2441" data-lat="31.645">
+                <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת מבנה רב תכליתי בנוקדים במפה">
+                  <span class="project-card__top"><span class="project-card__number" aria-hidden="true">02</span> <span class="project-card__city">נוקדים</span></span>
+                  <span class="project-card__title">מבנה רב תכליתי</span>
+                  <span class="project-card__description">הכנת אומדן וכתב כמויות למכרז שיפוץ כללי של מבנה רב תכליתי.</span>
                 </button>
               </li>
-              <li class="project-card" data-category="public" data-lng="35.115" data-lat="31.65">
-                <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת שיפוץ והנגשת מבנה רב־תכליתי בכפר עציון במפה">
-                  <span class="project-card__top"><span class="project-card__number">03</span><span class="project-card__category">מבני ציבור</span><span class="project-card__city">כפר עציון</span></span>
-                  <span class="project-card__title">שיפוץ והנגשת מבנה רב־תכליתי</span>
-                  <span class="project-card__description">הכנת אומדן וכתב כמויות למכרז שיפוץ כללי והנגשה למבנה רב־תכליתי.</span>
+              <li class="project-card" data-reveal data-lng="35.115" data-lat="31.65">
+                <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת שיפוץ והנגשת מבנה רב תכליתי בכפר עציון במפה">
+                  <span class="project-card__top"><span class="project-card__number" aria-hidden="true">03</span> <span class="project-card__city">כפר עציון</span></span>
+                  <span class="project-card__title">שיפוץ והנגשת מבנה רב תכליתי</span>
+                  <span class="project-card__description">הכנת אומדן וכתב כמויות למכרז שיפוץ כללי והנגשה של מבנה רב תכליתי.</span>
                 </button>
               </li>
-              <li class="project-card" data-category="public" data-lng="35.229" data-lat="31.654">
+              <li class="project-card" data-reveal data-lng="35.229" data-lat="31.654">
                 <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת אולם פיס בתקוע במפה">
-                  <span class="project-card__top"><span class="project-card__number">04</span><span class="project-card__category">מבני ציבור</span><span class="project-card__city">תקוע</span></span>
+                  <span class="project-card__top"><span class="project-card__number" aria-hidden="true">04</span> <span class="project-card__city">תקוע</span></span>
                   <span class="project-card__title">אולם פיס</span>
                   <span class="project-card__description">הכנת אומדן וכתב כמויות למכרז שיפוץ כללי לאולם פיס.</span>
                 </button>
               </li>
-              <li class="project-card" data-category="residential" data-lng="35.24" data-lat="32.054">
+              <li class="project-card" data-reveal data-lng="35.24" data-lat="32.054">
                 <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת שיפוץ ותוספת לבית פרטי במעלה לבונה במפה">
-                  <span class="project-card__top"><span class="project-card__number">05</span><span class="project-card__category">מגורים</span><span class="project-card__city">מעלה לבונה</span></span>
+                  <span class="project-card__top"><span class="project-card__number" aria-hidden="true">05</span> <span class="project-card__city">מעלה לבונה</span></span>
                   <span class="project-card__title">שיפוץ ותוספת לבית פרטי</span>
-                  <span class="project-card__description">הכנת אומדן עלויות וכתב כמויות לשיפוץ כללי ותוספת לבית פרטי.</span>
+                  <span class="project-card__description">הכנת אומדן עלויות וכתב כמויות לשיפוץ כללי ולתוספת בנייה בבית פרטי.</span>
                 </button>
               </li>
-              <li class="project-card" data-category="residential" data-lng="34.9832" data-lat="31.8714">
+              <li class="project-card" data-reveal data-lng="34.9832" data-lat="31.8714">
                 <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת שיפוץ ותוספת לבית פרטי בשעלבים במפה">
-                  <span class="project-card__top"><span class="project-card__number">06</span><span class="project-card__category">מגורים</span><span class="project-card__city">שעלבים</span></span>
+                  <span class="project-card__top"><span class="project-card__number" aria-hidden="true">06</span> <span class="project-card__city">שעלבים</span></span>
                   <span class="project-card__title">שיפוץ ותוספת לבית פרטי</span>
-                  <span class="project-card__description">הכנת אומדן עלויות וכתב כמויות לשיפוץ כללי ותוספת לבית פרטי.</span>
+                  <span class="project-card__description">הכנת אומדן עלויות וכתב כמויות לשיפוץ כללי ולתוספת בנייה בבית פרטי.</span>
                 </button>
               </li>
-              <li class="project-card" data-category="public" data-lng="35.134" data-lat="31.926">
+              <li class="project-card" data-reveal data-lng="35.134" data-lat="31.926">
                 <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת מקווה טהרה בדולב במפה">
-                  <span class="project-card__top"><span class="project-card__number">07</span><span class="project-card__category">מבני ציבור</span><span class="project-card__city">דולב</span></span>
+                  <span class="project-card__top"><span class="project-card__number" aria-hidden="true">07</span> <span class="project-card__city">דולב</span></span>
                   <span class="project-card__title">מקווה טהרה</span>
                   <span class="project-card__description">הכנת אומדן עלויות וכתב כמויות למכרז בניית מקווה טהרה.</span>
                 </button>
               </li>
-              <li class="project-card" data-category="public" data-lng="34.888" data-lat="31.951">
+              <li class="project-card" data-reveal data-lng="34.888" data-lat="31.951">
                 <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת מתחם חמישה בתי כנסת בלוד במפה">
-                  <span class="project-card__top"><span class="project-card__number">08</span><span class="project-card__category">מבני ציבור</span><span class="project-card__city">לוד</span></span>
+                  <span class="project-card__top"><span class="project-card__number" aria-hidden="true">08</span> <span class="project-card__city">לוד</span></span>
                   <span class="project-card__title">מתחם חמישה בתי כנסת</span>
                   <span class="project-card__description">הכנת חשבון להכשרת מתחם של חמישה בתי כנסת.</span>
                 </button>
               </li>
-              <li class="project-card" data-category="public" data-lng="34.824" data-lat="32.082">
-                <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת תיאטרון רמת גן ברמת גן במפה">
-                  <span class="project-card__top"><span class="project-card__number">09</span><span class="project-card__category">מבני ציבור</span><span class="project-card__city">רמת גן</span></span>
+              <li class="project-card" data-reveal data-lng="34.824" data-lat="32.082">
+                <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת פרויקט תיאטרון רמת גן במפה">
+                  <span class="project-card__top"><span class="project-card__number" aria-hidden="true">09</span> <span class="project-card__city">רמת גן</span></span>
                   <span class="project-card__title">תיאטרון רמת גן</span>
                   <span class="project-card__description">הכנת אומדן עלויות וכתב כמויות למכרז שיפוץ כללי של תיאטרון רמת גן.</span>
                 </button>
               </li>
-              <li class="project-card" data-category="rehabilitation" data-lng="35.472" data-lat="33.089">
+              <li class="project-card" data-reveal data-lng="35.472" data-lat="33.089">
                 <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת שיקום בית פרטי באביבים במפה">
-                  <span class="project-card__top"><span class="project-card__number">10</span><span class="project-card__category">שיקום</span><span class="project-card__city">אביבים</span></span>
+                  <span class="project-card__top"><span class="project-card__number" aria-hidden="true">10</span> <span class="project-card__city">אביבים</span></span>
                   <span class="project-card__title">שיקום בית פרטי</span>
                   <span class="project-card__description">הכנת אומדן עלויות וכתב כמויות לשיקום בית פרטי שנפגע במלחמת חרבות הברזל.</span>
                 </button>
               </li>
-              <li class="project-card" data-category="rehabilitation" data-lng="34.792" data-lat="31.252">
+              <li class="project-card" data-reveal data-lng="34.792" data-lat="31.252">
                 <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת שיקום בית פרטי בבאר שבע במפה">
-                  <span class="project-card__top"><span class="project-card__number">11</span><span class="project-card__category">שיקום</span><span class="project-card__city">באר שבע</span></span>
+                  <span class="project-card__top"><span class="project-card__number" aria-hidden="true">11</span> <span class="project-card__city">באר שבע</span></span>
                   <span class="project-card__title">שיקום בית פרטי</span>
                   <span class="project-card__description">הכנת אומדן עלויות וכתב כמויות למכרז שיקום בית פרטי שנפגע במלחמת חרבות הברזל.</span>
                 </button>
               </li>
-              <li class="project-card" data-category="infrastructure" data-lng="34.596" data-lat="31.524">
+              <li class="project-card" data-reveal data-lng="34.596" data-lat="31.524">
                 <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת טיילת טכנולוגית בשדרות במפה">
-                  <span class="project-card__top"><span class="project-card__number">12</span><span class="project-card__category">תעשייה ותשתיות</span><span class="project-card__city">שדרות</span></span>
+                  <span class="project-card__top"><span class="project-card__number" aria-hidden="true">12</span> <span class="project-card__city">שדרות</span></span>
                   <span class="project-card__title">טיילת טכנולוגית</span>
                   <span class="project-card__description">הכנת אומדן עלויות וכתב כמויות לטובת הקמת טיילת טכנולוגית.</span>
                 </button>
               </li>
-              <li class="project-card" data-category="infrastructure" data-lng="34.77" data-lat="31.61">
+              <li class="project-card" data-reveal data-lng="34.77" data-lat="31.61">
                 <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת מבנה תעשייה בקריית גת במפה">
-                  <span class="project-card__top"><span class="project-card__number">13</span><span class="project-card__category">תעשייה ותשתיות</span><span class="project-card__city">קריית גת</span></span>
+                  <span class="project-card__top"><span class="project-card__number" aria-hidden="true">13</span> <span class="project-card__city">קריית גת</span></span>
                   <span class="project-card__title">מבנה תעשייה</span>
                   <span class="project-card__description">הכנת אומדן עלויות וכתב כמויות למבנה תעשייה.</span>
                 </button>
               </li>
-              <li class="project-card" data-category="rehabilitation" data-lng="34.4983" data-lat="31.4731">
-                <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת שיקום מכינה קדם־צבאית בנחל עוז במפה">
-                  <span class="project-card__top"><span class="project-card__number">14</span><span class="project-card__category">שיקום</span><span class="project-card__city">נחל עוז</span></span>
-                  <span class="project-card__title">שיקום מכינה קדם־צבאית</span>
-                  <span class="project-card__description">הכנת אומדן עלויות לשיקום וכתב כמויות למכרז מכינה קדם־צבאית שנפגעה במלחמת חרבות הברזל.</span>
+              <li class="project-card" data-reveal data-lng="34.4983" data-lat="31.4731">
+                <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת שיקום מכינה קדם צבאית בנחל עוז במפה">
+                  <span class="project-card__top"><span class="project-card__number" aria-hidden="true">14</span> <span class="project-card__city">נחל עוז</span></span>
+                  <span class="project-card__title">שיקום מכינה קדם צבאית</span>
+                  <span class="project-card__description">הכנת אומדן עלויות וכתב כמויות למכרז שיקום מכינה קדם צבאית שנפגעה במלחמת חרבות הברזל.</span>
                 </button>
               </li>
-              <li class="project-card" data-category="public" data-lng="34.5987" data-lat="31.5076">
-                <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת מגורי מכינה קדם־צבאית בגבים במפה">
-                  <span class="project-card__top"><span class="project-card__number">15</span><span class="project-card__category">מבני ציבור</span><span class="project-card__city">גבים</span></span>
-                  <span class="project-card__title">מגורי מכינה קדם־צבאית</span>
-                  <span class="project-card__description">הכנת אומדן עלויות לשיפוץ וכתב כמויות למכרז מגורי מכינה קדם־צבאית.</span>
+              <li class="project-card" data-reveal data-lng="34.5987" data-lat="31.5076">
+                <button class="project-card__button" type="button" aria-pressed="false" aria-label="הצגת מגורי מכינה קדם צבאית בגבים במפה">
+                  <span class="project-card__top"><span class="project-card__number" aria-hidden="true">15</span> <span class="project-card__city">גבים</span></span>
+                  <span class="project-card__title">מגורי מכינה קדם צבאית</span>
+                  <span class="project-card__description">הכנת אומדן עלויות וכתב כמויות למכרז שיפוץ מגורי מכינה קדם צבאית.</span>
                 </button>
               </li>
               </ul>
